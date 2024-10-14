@@ -108,7 +108,7 @@ describe("/api/articles", () => {
 });
 
 describe("/api/articles/:article_id/comments", () => {
-  test("GET: 200 - respond with an array of comments for the given article_id ordered by the most recent comment first", () => {
+  test("GET: 200 - respond with an array of comments ordered by the most recent comment first when given a valid article_id that has comments", () => {
     return request(app)
       .get("/api/articles/1/comments")
       .expect(200)
@@ -126,6 +126,15 @@ describe("/api/articles/:article_id/comments", () => {
         );
 
         expect(comments).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+
+  test("GET: 200 - respond with an empty array when given a valid article_id that doesn't have any comments", () => {
+    return request(app)
+      .get("/api/articles/4/comments")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments).toHaveLength(0);
       });
   });
 
