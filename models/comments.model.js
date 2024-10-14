@@ -1,9 +1,10 @@
 const db = require("../db/connection");
 
 function selectCommentsByArticleId(article_id) {
-  return db
-    .query(
-      `
+  return (
+    db
+      .query(
+        `
     SELECT
       comment_id,
       votes,
@@ -15,14 +16,13 @@ function selectCommentsByArticleId(article_id) {
     WHERE article_id = $1
     ORDER BY created_at DESC
     `,
-      [article_id]
-    )
-    .then((results) => {
-      if (!results.rowCount)
-        return Promise.reject({ status_code: 404, msg: "Not found" });
-
-      return results.rows;
-    });
+        [article_id]
+      )
+      // N.B. no need to test for empty rows as it is valid for no comments
+      // to be attached to an article. We can assume that article_id has been
+      // validated by controller before we query the database
+      .then((results) => results.rows)
+  );
 }
 
 module.exports = { selectCommentsByArticleId };
