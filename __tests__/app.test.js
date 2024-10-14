@@ -46,28 +46,6 @@ describe("/api/topics", () => {
   });
 });
 
-/*
-Description
-Should:
-
-be available on /api/articles/:article_id.
-get an article by its id.
-Responds with:
-
-an article object, which should have the following properties:
-author ✅
-title ✅
-article_id ✅
-body✅
-topic✅
-created_at✅
-votes✅
-article_img_url✅
-Consider what errors could occur with this endpoint, and make sure to test for them.
-
-Remember to add a description of this endpoint to your /api endpoint.✅
-*/
-
 describe("/api/articles/:article_id", () => {
   test("GET: 200 - respond with an article object for the specified article_id", () => {
     return request(app)
