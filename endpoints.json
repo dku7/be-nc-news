@@ -28,7 +28,7 @@
     }
   },
   "GET /api/articles/:article_id": {
-    "description": "serves an object corresponding to the specified article_id parameter",
+    "description": "serves an article object for the given article_id",
     "queries": [],
     "exampleResponse": {
       "article": {
@@ -41,6 +41,23 @@
         "votes": 0,
         "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
       }
+    }
+  },
+
+  "GET /api/articles/:article_id/comments": {
+    "description": "servces an array of comments for the given article_id ordered by the most recent comment first",
+    "queries": [],
+    "exampleResponse": {
+      "comments": [
+        {
+          "comment_id": 5,
+          "votes": 0,
+          "created_at": "2020-11-03T21:00:00.000Z",
+          "author": "icellusedkars",
+          "body": "I hate streaming noses",
+          "article_id": 1
+        }
+      ]
     }
   }
 }
