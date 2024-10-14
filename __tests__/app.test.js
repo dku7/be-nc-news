@@ -5,6 +5,7 @@ const db = require("../db/connection");
 
 const seed = require("../db/seeds/seed");
 const testData = require("../db/data/test-data");
+const endpointsJSON = require("../endpoints.json");
 
 beforeAll(() => seed(testData));
 afterAll(() => db.end());
@@ -17,6 +18,18 @@ describe("All bad paths", () => {
       .then(({ body: { msg } }) => expect(msg).toBe("Path not found"));
   });
 });
+
+describe("/api", () => {
+  test("GET: 200 - respond with an array of all currently available endpoints detailing: the method/name of endpoint; description; accepted queries; example response", () => {
+    return request(app)
+      .get("/api")
+      .expect(200)
+      .then(({ body: { endpoints } }) => {
+        expect(endpoints).toEqual(endpointsJSON);
+      });
+  });
+});
+
 describe("/api/topics", () => {
   test("GET: 200 - respond with an array of topic objects wih the following properties: slug, description", () => {
     return request(app)
