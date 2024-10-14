@@ -1,6 +1,9 @@
 const express = require("express");
 
-const { getArticleById } = require("./controllers/articles.controller");
+const {
+  getArticleById,
+  getAllArticles,
+} = require("./controllers/articles.controller");
 const { getEndpoints } = require("./controllers/endpoints.controller");
 const { getTopics } = require("./controllers/topics.controller");
 
@@ -21,6 +24,8 @@ app.get("/api", getEndpoints);
 app.get("/api/topics", getTopics);
 
 app.get("/api/articles/:article_id", getArticleById);
+
+app.get("/api/articles", getAllArticles);
 
 /**********************************************
  * Error handlers
