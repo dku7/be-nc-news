@@ -7,7 +7,7 @@ function selectArticleById(article_id) {
       if (!results.rowCount)
         return Promise.reject({ status_code: 404, msg: "Not found" });
 
-      return results.rows;
+      return results.rows[0];
     });
 }
 
