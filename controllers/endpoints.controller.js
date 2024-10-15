@@ -1,9 +1,7 @@
-const { selectEndpoints } = require("../models/endpoints.model");
+const endpointsJSON = require("../endpoints.json");
 
 function getEndpoints(request, response, next) {
-  return selectEndpoints()
-    .then((endpoints) => response.status(200).send({ endpoints }))
-    .catch(next);
+  response.status(200).send({ endpoints: endpointsJSON });
 }
 
 module.exports = { getEndpoints };
