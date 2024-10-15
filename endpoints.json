@@ -45,7 +45,7 @@
   },
 
   "GET /api/articles/:article_id/comments": {
-    "description": "servces an array of comments for the given article_id ordered by the most recent comment first",
+    "description": "serves an array of comments for the given article_id ordered by the most recent comment first",
     "queries": [],
     "exampleResponse": {
       "comments": [
@@ -58,6 +58,21 @@
           "article_id": 1
         }
       ]
+    }
+  },
+
+  "POST /api/articles/:article_id/comments": {
+    "description": "add a new comment to an article, returns with the newly posted comment",
+    "queries": [],
+    "exampleResponse": {
+      "newComment": {
+        "comment_id": 19,
+        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet sapien vitae nibh convallis mollis. Donec feugiat elit eu enim gravida imperdiet.",
+        "article_id": 1,
+        "author": "lurker",
+        "votes": 0,
+        "created_at": "2024-10-15T11:28:08.445Z"
+      }
     }
   }
 }
