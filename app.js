@@ -8,6 +8,7 @@ const {
 const {
   getCommentsByArticleId,
   postNewComment,
+  removeCommentByCommentId,
 } = require("./controllers/comments.controller");
 const { getEndpoints } = require("./controllers/endpoints.controller");
 const { getTopics } = require("./controllers/topics.controller");
@@ -45,6 +46,11 @@ app.post("/api/articles/:article_id/comments", postNewComment);
  * PATCH methods
  **********************************************/
 app.patch("/api/articles/:article_id", patchArticleById);
+
+/**********************************************
+ * DELETE methods
+ **********************************************/
+app.delete("/api/comments/:comment_id", removeCommentByCommentId);
 
 /**********************************************
  * Error handlers

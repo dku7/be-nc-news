@@ -2,6 +2,8 @@ const { selectArticleById } = require("../models/articles.model");
 const {
   selectCommentsByArticleId,
   insertNewComment,
+  selectCommentByCommentId,
+  deleteCommentByCommentId,
 } = require("../models/comments.model");
 
 function getCommentsByArticleId(request, response, next) {
@@ -28,4 +30,19 @@ function postNewComment(request, response, next) {
     })
     .catch(next);
 }
-module.exports = { getCommentsByArticleId, postNewComment };
+
+function removeCommentByCommentId(request, response, next) {
+  const { comment_id } = request.params;
+
+  // check the comment exists first
+  return selectCommentByCommentId(comment_id)
+    .then(() => deleteCommentByCommentId(comment_id))
+    .then(() => response.status(204).send())
+    .catch(next);
+}
+
+module.exports = {
+  getCommentsByArticleId,
+  postNewComment,
+  removeCommentByCommentId,
+};
