@@ -3,6 +3,7 @@ const express = require("express");
 const {
   getArticleById,
   getAllArticles,
+  patchArticleById,
 } = require("./controllers/articles.controller");
 const {
   getCommentsByArticleId,
@@ -39,6 +40,11 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
  * POST methods
  **********************************************/
 app.post("/api/articles/:article_id/comments", postNewComment);
+
+/**********************************************
+ * PATCH methods
+ **********************************************/
+app.patch("/api/articles/:article_id", patchArticleById);
 
 /**********************************************
  * Error handlers

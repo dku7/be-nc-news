@@ -41,4 +41,16 @@ function selectAllArticles() {
     .then((results) => results.rows);
 }
 
-module.exports = { selectArticleById, selectAllArticles };
+function updateArticleById(votes, article_id) {
+  return db
+    .query(
+      `
+    UPDATE articles
+    SET votes = GREATEST(votes + $1, 0) -- set to 0 if it goes negative
+    WHERE article_id = $2
+    RETURNING *`,
+      [votes.inc_votes, article_id]
+    )
+    .then((results) => results.rows[0]);
+}
+module.exports = { selectArticleById, selectAllArticles, updateArticleById };
