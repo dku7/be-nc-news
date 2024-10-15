@@ -43,4 +43,24 @@ function insertNewComment(newComment, article_id) {
       return results.rows[0];
     });
 }
-module.exports = { selectCommentsByArticleId, insertNewComment };
+
+function selectCommentByCommentId(comment_id) {
+  return db
+    .query("SELECT * FROM comments WHERE comment_id = $1", [comment_id])
+    .then((results) => {
+      if (!results.rowCount)
+        return Promise.reject({ status_code: 404, msg: "Not found" });
+
+      return results.rows[0];
+    });
+}
+function deleteCommentByCommentId(comment_id) {
+  return db.query("DELETE FROM comments WHERE comment_id = $1", [comment_id]);
+}
+
+module.exports = {
+  selectCommentsByArticleId,
+  insertNewComment,
+  selectCommentByCommentId,
+  deleteCommentByCommentId,
+};
