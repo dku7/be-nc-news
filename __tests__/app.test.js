@@ -108,47 +108,121 @@ describe("/api/articles", () => {
 });
 
 describe("/api/articles/:article_id/comments", () => {
-  test("GET: 200 - respond with an array of comments ordered by the most recent comment first when given a valid article_id that has comments", () => {
-    return request(app)
-      .get("/api/articles/1/comments")
-      .expect(200)
-      .then(({ body: { comments } }) => {
-        expect(comments).toHaveLength(11);
-        comments.forEach((comment) =>
-          expect(comment).toMatchObject({
-            comment_id: expect.any(Number),
-            votes: expect.any(Number),
-            created_at: expect.any(String),
-            author: expect.any(String),
-            body: expect.any(String),
+  describe("GET methods", () => {
+    test("GET: 200 - respond with an array of comments ordered by the most recent comment first when given a valid article_id that has comments", () => {
+      return request(app)
+        .get("/api/articles/1/comments")
+        .expect(200)
+        .then(({ body: { comments } }) => {
+          expect(comments).toHaveLength(11);
+          comments.forEach((comment) =>
+            expect(comment).toMatchObject({
+              comment_id: expect.any(Number),
+              votes: expect.any(Number),
+              created_at: expect.any(String),
+              author: expect.any(String),
+              body: expect.any(String),
+              article_id: 1,
+            })
+          );
+
+          expect(comments).toBeSortedBy("created_at", { descending: true });
+        });
+    });
+
+    test("GET: 200 - respond with an empty array when given a valid article_id that doesn't have any comments", () => {
+      return request(app)
+        .get("/api/articles/4/comments")
+        .expect(200)
+        .then(({ body: { comments } }) => {
+          expect(comments).toHaveLength(0);
+        });
+    });
+
+    test("GET: 404 - respond with message 'Not found' when the specified article_id is not found", () => {
+      return request(app)
+        .get("/api/articles/9999/comments")
+        .expect(404)
+        .then(({ body: { msg } }) => expect(msg).toBe("Not found"));
+    });
+
+    test('GET: 400 - respond with message "Bad request" when the specified article_id is not the correct data type', () => {
+      return request(app)
+        .get("/api/articles/not-a-number/comments")
+        .expect(400)
+        .then(({ body: { msg } }) => expect(msg).toBe("Bad request"));
+    });
+  });
+
+  describe("POST methods", () => {
+    test("POST: 201 - add a new comment for the specified article_id and respond with an object representing the posted comment", () => {
+      const input = {
+        body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet sapien vitae nibh convallis mollis. Donec feugiat elit eu enim gravida imperdiet.",
+        author: "lurker",
+      };
+
+      return request(app)
+        .post("/api/articles/1/comments")
+        .send(input)
+        .expect(201)
+        .then(({ body: { newComment } }) => {
+          expect(newComment).toMatchObject({
+            body: input.body,
             article_id: 1,
-          })
-        );
+            author: input.author,
+            comment_id: expect.any(Number),
+            created_at: expect.any(String),
+            votes: 0,
+          });
+        });
+    });
 
-        expect(comments).toBeSortedBy("created_at", { descending: true });
+    test('POST: 400 - respond with message "Bad request" when the given new comment does not specify body and/or author', () => {
+      const missingEverything = {};
+      const missingBody = { author: "lurker" };
+      const missingAuthor = {
+        body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet sapien vitae nibh convallis mollis. Donec feugiat elit eu enim gravida imperdiet.",
+      };
+
+      const testCases = [missingEverything, missingBody, missingAuthor];
+      const promises = testCases.map((testCase) => {
+        return request(app).post("/api/articles/1/comments").send(testCase);
       });
-  });
 
-  test("GET: 200 - respond with an empty array when given a valid article_id that doesn't have any comments", () => {
-    return request(app)
-      .get("/api/articles/4/comments")
-      .expect(200)
-      .then(({ body: { comments } }) => {
-        expect(comments).toHaveLength(0);
+      return Promise.all(promises).then((responses) => {
+        responses.forEach((response) => {
+          expect(response.statusCode).toBe(400);
+          expect(response.body.msg).toBe("Bad request");
+        });
       });
-  });
+    });
 
-  test("GET: 404 - respond with message 'Not found' when the specified article_id is not found", () => {
-    return request(app)
-      .get("/api/articles/9999/comments")
-      .expect(404)
-      .then(({ body: { msg } }) => expect(msg).toBe("Not found"));
-  });
+    test('POST: 404 - respond with message "Not found" when the specified author does not exist in the database', () => {
+      const input = {
+        body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet sapien vitae nibh convallis mollis. Donec feugiat elit eu enim gravida imperdiet.",
+        author: "idonotexist",
+      };
 
-  test('GET: 400 - respond with message "Bad request" when the specified article_id is not the correct data type', () => {
-    return request(app)
-      .get("/api/articles/not-a-number/comments")
-      .expect(400)
-      .then(({ body: { msg } }) => expect(msg).toBe("Bad request"));
+      return request(app)
+        .post("/api/articles/1/comments")
+        .send(input)
+        .expect(404)
+        .then(({ body: { msg } }) => expect(msg).toBe("Not found"));
+    });
+
+    test('POST: 404 - respond with message "Not found" when the specified article_id does not exist in the database', () => {
+      const input = {
+        body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet sapien vitae nibh convallis mollis. Donec feugiat elit eu enim gravida imperdiet.",
+        author: "lurker",
+      };
+
+      return request(app)
+        .post("/api/articles/9999/comments")
+        .send(input)
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found");
+        });
+    });
   });
 });

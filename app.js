@@ -4,7 +4,10 @@ const {
   getArticleById,
   getAllArticles,
 } = require("./controllers/articles.controller");
-const { getCommentsByArticleId } = require("./controllers/comments.controller");
+const {
+  getCommentsByArticleId,
+  postNewComment,
+} = require("./controllers/comments.controller");
 const { getEndpoints } = require("./controllers/endpoints.controller");
 const { getTopics } = require("./controllers/topics.controller");
 
@@ -16,6 +19,8 @@ const {
 } = require("./error-handlers");
 
 const app = express();
+
+app.use(express.json());
 
 /**********************************************
  * GET methods
@@ -31,15 +36,20 @@ app.get("/api/articles", getAllArticles);
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 
 /**********************************************
+ * POST methods
+ **********************************************/
+app.post("/api/articles/:article_id/comments", postNewComment);
+
+/**********************************************
  * Error handlers
  **********************************************/
 // invalid endpoint
 app.all("*", badPathsErrorHandler);
 
-// handle custom error e.g. manually thrown 404 ('Not found')
+// handle custom, manually thrown errors
 app.use(customErrorHandler);
 
-// handle errors thrown by PSQL queries e.g. 400 ('Bad request')
+// handle errors thrown by PSQL queries
 app.use(psqlErrorHandler);
 
 // default, catch-all handler

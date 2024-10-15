@@ -1,4 +1,5 @@
 const db = require("../db/connection");
+const format = require("pg-format");
 
 function selectCommentsByArticleId(article_id) {
   return (
@@ -25,4 +26,21 @@ function selectCommentsByArticleId(article_id) {
   );
 }
 
-module.exports = { selectCommentsByArticleId };
+function insertNewComment(newComment, article_id) {
+  const insertValues = [[newComment.body, article_id, newComment.author]];
+
+  return db
+    .query(
+      format(
+        `
+      INSERT INTO comments(body, article_id, author) 
+      VALUES %L 
+      RETURNING *`,
+        insertValues
+      )
+    )
+    .then((results) => {
+      return results.rows[0];
+    });
+}
+module.exports = { selectCommentsByArticleId, insertNewComment };
