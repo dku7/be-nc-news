@@ -177,28 +177,64 @@ describe("/api/articles/:article_id", () => {
 });
 
 describe("/api/articles", () => {
-  test("GET: 200 - respond with an array of all article objects sorted by date in descending order", () => {
-    return request(app)
-      .get("/api/articles")
-      .expect(200)
-      .then(({ body: { articles } }) => {
-        expect(articles).toHaveLength(13);
+  describe("GET", () => {
+    test("GET: 200 - respond with an array of all article objects sorted by date in descending order", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles).toHaveLength(13);
 
-        articles.forEach((article) => {
-          expect(article).toMatchObject({
-            author: expect.any(String),
-            title: expect.any(String),
-            article_id: expect.any(Number),
-            topic: expect.any(String),
-            created_at: expect.any(String),
-            votes: expect.any(Number),
-            article_img_url: expect.any(String),
-            comment_count: expect.any(Number),
+          articles.forEach((article) => {
+            expect(article).toMatchObject({
+              author: expect.any(String),
+              title: expect.any(String),
+              article_id: expect.any(Number),
+              topic: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              article_img_url: expect.any(String),
+              comment_count: expect.any(Number),
+            });
           });
-        });
 
-        expect(articles).toBeSortedBy("created_at", { descending: true });
-      });
+          expect(articles).toBeSortedBy("created_at", { descending: true });
+        });
+    });
+  });
+
+  describe("Queries", () => {
+    test("GET: 200 - respond with an array of all article objects sorted by the specified column and in ascending order", () => {
+      return request(app)
+        .get("/api/articles?sort_by=author&order=asc")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles).toBeSortedBy("author");
+        });
+    });
+
+    test("GET: 200 - respond with an array of all article objects sorted by the specified column and in descending order", () => {
+      return request(app)
+        .get("/api/articles?sort_by=topic&order=desc")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles).toBeSortedBy("topic", { descending: true });
+        });
+    });
+
+    test('GET: 400 - respond with message "Bad request" when attempting to sort by a disallowed column', () => {
+      return request(app)
+        .get("/api/articles?sort_by=disallowed-column-name&order=desc")
+        .expect(400)
+        .then(({ body: { msg } }) => expect(msg).toBe("Bad request"));
+    });
+
+    test('GET: 400 - respond with message "Bad request" when attempting to order by an invalid value', () => {
+      return request(app)
+        .get("/api/articles?sort_by=author&order=invalid")
+        .expect(400)
+        .then(({ body: { msg } }) => expect(msg).toBe("Bad request"));
+    });
   });
 });
 

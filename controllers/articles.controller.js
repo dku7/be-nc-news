@@ -1,6 +1,6 @@
 const {
   selectArticleById,
-  selectAllArticles,
+  selectArticles,
   updateArticleById,
 } = require("../models/articles.model");
 
@@ -12,8 +12,10 @@ function getArticleById(request, response, next) {
     .catch(next);
 }
 
-function getAllArticles(request, response, next) {
-  return selectAllArticles()
+function getArticles(request, response, next) {
+  const { sort_by, order } = request.query;
+
+  return selectArticles(sort_by, order)
     .then((rows) => response.status(200).send({ articles: rows }))
     .catch(next);
 }
@@ -38,4 +40,4 @@ function patchArticleById(request, response, next) {
     )
     .catch(next);
 }
-module.exports = { getArticleById, getAllArticles, patchArticleById };
+module.exports = { getArticleById, getArticles, patchArticleById };
