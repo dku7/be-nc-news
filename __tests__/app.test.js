@@ -7,7 +7,7 @@ const seed = require("../db/seeds/seed");
 const testData = require("../db/data/test-data");
 const endpointsJSON = require("../endpoints.json");
 
-beforeAll(() => seed(testData));
+beforeEach(() => seed(testData));
 afterAll(() => db.end());
 
 describe("All bad paths", () => {
@@ -47,37 +47,132 @@ describe("/api/topics", () => {
 });
 
 describe("/api/articles/:article_id", () => {
-  test("GET: 200 - respond with an article object for the specified article_id", () => {
-    return request(app)
-      .get("/api/articles/5")
-      .expect(200)
-      .then(({ body: { article } }) => {
-        expect(article).toMatchObject({
-          article_id: 5,
-          title: "UNCOVERED: catspiracy to bring down democracy",
-          topic: "cats",
-          author: "rogersop",
-          body: "Bastet walks amongst us, and the cats are taking arms!",
-          created_at: "2020-08-03T13:14:00.000Z",
-          votes: 0,
-          article_img_url:
-            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+  describe("GET methods", () => {
+    test("GET: 200 - respond with an article object for the specified article_id", () => {
+      return request(app)
+        .get("/api/articles/5")
+        .expect(200)
+        .then(({ body: { article } }) => {
+          expect(article).toMatchObject({
+            article_id: 5,
+            title: "UNCOVERED: catspiracy to bring down democracy",
+            topic: "cats",
+            author: "rogersop",
+            body: "Bastet walks amongst us, and the cats are taking arms!",
+            created_at: "2020-08-03T13:14:00.000Z",
+            votes: 0,
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          });
+        });
+    });
+
+    test("GET: 404 - respond with message 'Not found' when the specified article_id is not found", () => {
+      return request(app)
+        .get("/api/articles/9999")
+        .expect(404)
+        .then(({ body: { msg } }) => expect(msg).toBe("Not found"));
+    });
+
+    test('GET: 400 - respond with message "Bad request" when the specified article_id is not the correct data type', () => {
+      return request(app)
+        .get("/api/articles/not-a-number")
+        .expect(400)
+        .then(({ body: { msg } }) => expect(msg).toBe("Bad request"));
+    });
+  });
+
+  describe("PATCH methods", () => {
+    test("PATCH: 200 - update the specified article, increasing the votes and respond with an object representing the updated article", () => {
+      const input = { inc_votes: 1 };
+
+      return request(app)
+        .patch("/api/articles/3")
+        .send(input)
+        .expect(200)
+        .then(({ body: { updatedArticle } }) => {
+          expect(updatedArticle.article_id).toBe(3);
+          expect(updatedArticle.votes).toBe(1);
+        });
+    });
+
+    test("PATCH: 200 - update the specified article, decreasing the votes and respond with an object representing the updated article", () => {
+      const input = { inc_votes: -1 };
+
+      return request(app)
+        .patch("/api/articles/1")
+        .send(input)
+        .expect(200)
+        .then(({ body: { updatedArticle } }) => {
+          expect(updatedArticle.article_id).toBe(1);
+          expect(updatedArticle.votes).toBe(99);
+        });
+    });
+
+    test("PATCH: 200 - if the number of inc_votes is greater than the current votes the returned votes should be 0, not negative", () => {
+      const input = { inc_votes: -100 };
+
+      return request(app)
+        .patch("/api/articles/4")
+        .send(input)
+        .expect(200)
+        .then(({ body: { updatedArticle } }) => {
+          expect(updatedArticle.article_id).toBe(4);
+          expect(updatedArticle.votes).toBe(0);
+        });
+    });
+
+    test("PATCH: 200 - extra keys should be ignored", () => {
+      const input = { inc_votes: 1, extra_key: "this value should be ignored" };
+
+      return request(app)
+        .patch("/api/articles/2")
+        .send(input)
+        .expect(200)
+        .then(({ body: { updatedArticle } }) => {
+          expect(updatedArticle.article_id).toBe(2);
+          expect(updatedArticle.votes).toBe(1);
+        });
+    });
+
+    test('PATCH: 400 - respond with message "Bad request" when the specified article_id is not the correct data type', () => {
+      const input = { inc_votes: 1 };
+
+      return request(app)
+        .patch("/api/articles/not-a-number")
+        .send(input)
+        .expect(400)
+        .then(({ body: { msg } }) => expect(msg).toBe("Bad request"));
+    });
+
+    test('PATCH: 400 - respond with message "Bad Request" when the given body does not have the expected key or the wrong data type is provided', () => {
+      const invalidKey = { invalid_key: 1 };
+      const missingKey = {};
+      const wrongDataType = { inc_votes: "this is a string not a number!" };
+
+      const testCases = [invalidKey, missingKey, wrongDataType];
+
+      const promises = testCases.map((testCase) => {
+        return request(app).patch("/api/articles/1").send(testCase);
+      });
+
+      return Promise.all(promises).then((responses) => {
+        responses.forEach((response) => {
+          expect(response.statusCode).toBe(400);
+          expect(response.body.msg).toBe("Bad request");
         });
       });
-  });
+    });
 
-  test("GET: 404 - respond with message 'Not found' when the specified article_id is not found", () => {
-    return request(app)
-      .get("/api/articles/9999")
-      .expect(404)
-      .then(({ body: { msg } }) => expect(msg).toBe("Not found"));
-  });
+    test("PATCH: 404 - respond with message 'Not found' when the specified article_id is not found", () => {
+      const input = { inc_votes: 1 };
 
-  test('GET: 400 - respond with message "Bad request" when the specified article_id is not the correct data type', () => {
-    return request(app)
-      .get("/api/articles/not-a-number")
-      .expect(400)
-      .then(({ body: { msg } }) => expect(msg).toBe("Bad request"));
+      return request(app)
+        .patch("/api/articles/9999")
+        .send(input)
+        .expect(404)
+        .then(({ body: { msg } }) => expect(msg).toBe("Not found"));
+    });
   });
 });
 
