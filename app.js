@@ -12,6 +12,7 @@ const {
 } = require("./controllers/comments.controller");
 const { getEndpoints } = require("./controllers/endpoints.controller");
 const { getTopics } = require("./controllers/topics.controller");
+const { getUsers } = require("./controllers/users.controller");
 
 const {
   badPathsErrorHandler,
@@ -36,6 +37,8 @@ app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/articles", getAllArticles);
 
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
+
+app.get("/api/users", getUsers);
 
 /**********************************************
  * POST methods
