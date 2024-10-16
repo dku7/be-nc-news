@@ -8,7 +8,7 @@ function getArticleById(request, response, next) {
   const { article_id } = request.params;
 
   return selectArticleById(article_id)
-    .then((rows) => response.status(200).send({ article: rows }))
+    .then((article) => response.status(200).send({ article }))
     .catch(next);
 }
 
@@ -16,7 +16,7 @@ function getArticles(request, response, next) {
   const { sort_by, order } = request.query;
 
   return selectArticles(sort_by, order)
-    .then((rows) => response.status(200).send({ articles: rows }))
+    .then((articles) => response.status(200).send({ articles }))
     .catch(next);
 }
 
@@ -37,8 +37,8 @@ function patchArticleById(request, response, next) {
   ];
 
   return Promise.all(promises)
-    .then((results) =>
-      response.status(200).send({ updatedArticle: results[0] })
+    .then((fulfilledPromises) =>
+      response.status(200).send({ updatedArticle: fulfilledPromises[0] })
     )
     .catch(next);
 }
