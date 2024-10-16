@@ -181,7 +181,7 @@ describe("/api/articles", () => {
     });
   });
 
-  describe("Queries", () => {
+  describe("Sorting queries", () => {
     test("GET: 200 - respond with an array of all article objects sorted by the specified column and in ascending order", () => {
       return request(app)
         .get("/api/articles?sort_by=author&order=asc")
@@ -212,6 +212,43 @@ describe("/api/articles", () => {
         .get("/api/articles?sort_by=author&order=invalid")
         .expect(400)
         .then(({ body: { msg } }) => expect(msg).toBe("Bad request"));
+    });
+  });
+
+  describe("Topic query", () => {
+    test("GET: 200 - respond with an array of all article objects when filtered by a existing topic", () => {
+      const topic = "mitch";
+
+      return request(app)
+        .get(`/api/articles?topic=${topic}`)
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles).toHaveLength(12);
+          articles.forEach((article) =>
+            expect(article).toMatchObject({
+              author: expect.any(String),
+              title: expect.any(String),
+              article_id: expect.any(Number),
+              topic: topic,
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              article_img_url: expect.any(String),
+              comment_count: expect.any(Number),
+            })
+          );
+        });
+    });
+
+    test("GET: 200 - respond with an empty array when filtered by a non-existent topic", () => {
+      const topic = "non-existent-topic";
+
+      return request(app)
+        .get(`/api/articles?topic=${topic}`)
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(Array.isArray(articles)).toBe(true);
+          expect(articles).toHaveLength(0);
+        });
     });
   });
 });
