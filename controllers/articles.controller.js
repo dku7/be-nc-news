@@ -28,9 +28,11 @@ function patchArticleById(request, response, next) {
     return response.status(400).send({ status_code: 400, msg: "Bad request" });
   }
 
+  const { inc_votes } = request.body;
+
   // check that the article exists using Promise.all
   const promises = [
-    updateArticleById(request.body, article_id),
+    updateArticleById(inc_votes, article_id),
     selectArticleById(article_id),
   ];
 

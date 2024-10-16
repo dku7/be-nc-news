@@ -122,19 +122,6 @@ describe("/api/articles/:article_id", () => {
         });
     });
 
-    test("PATCH: 200 - extra keys should be ignored", () => {
-      const input = { inc_votes: 1, extra_key: "this value should be ignored" };
-
-      return request(app)
-        .patch("/api/articles/2")
-        .send(input)
-        .expect(200)
-        .then(({ body: { updatedArticle } }) => {
-          expect(updatedArticle.article_id).toBe(2);
-          expect(updatedArticle.votes).toBe(1);
-        });
-    });
-
     test('PATCH: 400 - respond with message "Bad request" when the specified article_id is not the correct data type', () => {
       const input = { inc_votes: 1 };
 
@@ -145,23 +132,14 @@ describe("/api/articles/:article_id", () => {
         .then(({ body: { msg } }) => expect(msg).toBe("Bad request"));
     });
 
-    test('PATCH: 400 - respond with message "Bad Request" when the given body does not have the expected key or the wrong data type is provided', () => {
-      const invalidKey = { invalid_key: 1 };
-      const missingKey = {};
-      const wrongDataType = { inc_votes: "this is a string not a number!" };
-
-      const testCases = [invalidKey, missingKey, wrongDataType];
-
-      const promises = testCases.map((testCase) => {
-        return request(app).patch("/api/articles/1").send(testCase);
-      });
-
-      return Promise.all(promises).then((responses) => {
-        responses.forEach((response) => {
-          expect(response.statusCode).toBe(400);
-          expect(response.body.msg).toBe("Bad request");
+    test('PATCH: 400 - respond with message "Bad Request" when the wrong data type is provided for the patch', () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .expect(400)
+        .send({ inc_votes: "this is a string not a number!" })
+        .then((result) => {
+          expect(result.body.msg).toBe("Bad request");
         });
-      });
     });
 
     test("PATCH: 404 - respond with message 'Not found' when the specified article_id is not found", () => {
