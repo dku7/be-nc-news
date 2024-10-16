@@ -15,7 +15,7 @@ This service is currently hosted at https://nc-news-lpqp.onrender.com
 
 This API was created as part of my enrolment on the [Northcoders](https://northcoders.com/) JavaScript Software Development Bootcamp (2024). It is designed to replicate a real-world back-end service for a social network similar to Reddit. This API provides full CRUD (Create, Read, Update, Delete) operations on articles, comments, users, and topics. It supports core features expected in a real-world, RESTful platform, such as parametric endpoints and query parameters.
 
-It has been built using Test-Driven Development (TDD) with JavaScript (ES6+) and adheres to MVC best practices to ensure a clear separation of concerns within modules. The back-end is powered by Node.js, Express.js, and PostgreSQL.
+It has been built using Test-Driven Development (TDD) with JavaScript (ES6+) and adheres to Model-View-Controller (MVC) best practices to ensure a clear separation of concerns within modules. The back-end is powered by Node.js, Express.js, and PostgreSQL.
 
 ## Installation
 
