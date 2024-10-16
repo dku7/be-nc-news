@@ -1,14 +1,36 @@
 const db = require("../db/connection");
 
 function selectArticleById(article_id) {
-  return db
-    .query(`SELECT * FROM articles WHERE article_id = $1`, [article_id])
-    .then((results) => {
-      if (!results.rowCount)
-        return Promise.reject({ status_code: 404, msg: "Not found" });
+  let queryString = `
+    SELECT
+      articles.article_id,
+      articles.title,
+      articles.topic,
+      articles.author,
+      articles.body,
+      articles.created_at,
+      articles.votes,
+      articles.article_img_url,
+      CAST(COUNT(comments.comment_id) AS INT) AS comment_count -- force to integer, otherwise returns as string in object
+    FROM articles
+    LEFT JOIN comments ON comments.article_id = articles.article_id
+    WHERE articles.article_id = $1
+    GROUP BY
+      articles.article_id,
+      articles.title,
+      articles.topic,
+      articles.author,
+      articles.body,
+      articles.created_at,
+      articles.votes,
+      articles.article_img_url`;
 
-      return results.rows[0];
-    });
+  return db.query(queryString, [article_id]).then((results) => {
+    if (!results.rowCount)
+      return Promise.reject({ status_code: 404, msg: "Not found" });
+
+    return results.rows[0];
+  });
 }
 
 function selectArticles(sort_by = "created_at", order = "desc", topic) {

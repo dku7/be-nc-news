@@ -17,6 +17,8 @@ function psqlErrorHandler(error, request, response, next) {
       case "23503": // constraint violations
         return response.status(404).send({ msg: "Not found" });
       default:
+        console.log(error);
+
         return response
           .status(500)
           .send({ msg: `Database error, code: ${error.code}` });
