@@ -58,7 +58,11 @@ function selectArticles(sort_by = "created_at", order = "desc") {
     .then((results) => results.rows);
 }
 
-function updateArticleById(votes, article_id) {
+function updateArticleById(inc_votes, article_id) {
+  // check inc_votes in a number
+  if (typeof inc_votes != "number")
+    return Promise.reject({ status_code: 400, msg: "Bad request" });
+
   return db
     .query(
       `
@@ -66,7 +70,7 @@ function updateArticleById(votes, article_id) {
     SET votes = GREATEST(votes + $1, 0) -- set to 0 if it goes negative
     WHERE article_id = $2
     RETURNING *`,
-      [votes.inc_votes, article_id]
+      [inc_votes, article_id]
     )
     .then((results) => results.rows[0]);
 }
