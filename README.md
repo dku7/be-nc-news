@@ -48,9 +48,9 @@ If you would like to try the API with persisted data, you can run it in developm
 
 To ensure proper functionality of the API, please verify that you have the following minimum versions installed:
 
-Node.js: `v22.6.0`
-pg: `8.7.3`
-Express: `4.21.1`
+- Node.js: `v22.6.0`
+- pg: `8.7.3`
+- Express: `4.21.1`
 
 ## Usage
 
