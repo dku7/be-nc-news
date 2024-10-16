@@ -34,9 +34,7 @@ function postNewComment(request, response, next) {
 function removeCommentByCommentId(request, response, next) {
   const { comment_id } = request.params;
 
-  // check the comment exists first
-  return selectCommentByCommentId(comment_id)
-    .then(() => deleteCommentByCommentId(comment_id))
+  return deleteCommentByCommentId(comment_id)
     .then(() => response.status(204).send())
     .catch(next);
 }

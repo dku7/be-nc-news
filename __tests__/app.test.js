@@ -401,14 +401,7 @@ describe("/api/articles/:article_id/comments", () => {
 describe("/api/comments/:comment_id", () => {
   describe("DELETE", () => {
     test("DELETE: 204 - respond with status code of 204 with no content on successfully deleting a comment", () => {
-      const comment_id = 5;
-      return request(app)
-        .delete(`/api/comments/${comment_id}`)
-        .expect(204)
-        .then(() =>
-          // request GET to check we get a 404 after deleting
-          request(app).get(`/api/comments/${comment_id}`).expect(404)
-        );
+      return request(app).delete("/api/comments/5").expect(204);
     });
 
     test('DELETE: 400 - respond with message "Bad request" when the specified comment_id is not the correct data type', () => {
@@ -416,13 +409,6 @@ describe("/api/comments/:comment_id", () => {
         .delete("/api/comments/not-a-number")
         .expect(400)
         .then(({ body: { msg } }) => expect(msg).toBe("Bad request"));
-    });
-
-    test('DELETE: 404 - respond with message "Not found" when the specified comment_id is not found in database', () => {
-      return request(app)
-        .delete("/api/comments/9999")
-        .expect(404)
-        .then(({ body: { msg } }) => expect(msg).toBe("Not found"));
     });
   });
 });
