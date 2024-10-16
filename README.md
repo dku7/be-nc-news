@@ -8,8 +8,6 @@
 - [Testing](#testing)
 - [Minimum Versions](#minimum-versions)
 - [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
 
 This service is currently hosted at https://nc-news-lpqp.onrender.com
 
