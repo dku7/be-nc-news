@@ -207,8 +207,6 @@ describe("/api/articles", () => {
         .get("/api/articles")
         .expect(200)
         .then(({ body: { articles } }) => {
-          expect(articles).toHaveLength(13);
-
           articles.forEach((article) => {
             expect(article).toMatchObject({
               author: expect.any(String),
@@ -269,7 +267,6 @@ describe("/api/articles", () => {
         .get(`/api/articles?topic=${topic}`)
         .expect(200)
         .then(({ body: { articles } }) => {
-          expect(articles).toHaveLength(12);
           articles.forEach((article) =>
             expect(article).toMatchObject({
               author: expect.any(String),
@@ -298,6 +295,69 @@ describe("/api/articles", () => {
     });
   });
 
+  describe("Pagination query", () => {
+    test("GET: 200 - respond with an array of article objects limited to 10 articles by default", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body: { articles } }) => expect(articles).toHaveLength(10));
+    });
+
+    test("GET: 200 - respond with an array of articles limited by the specified limit", () => {
+      return request(app)
+        .get("/api/articles?limit=4")
+        .expect(200)
+        .then(({ body: { articles } }) => expect(articles).toHaveLength(4));
+    });
+
+    test("GET: 200 - respond with an array of articles limited by the specified limit and for the specified page ", () => {
+      return request(app)
+        .get("/api/articles?sort_by=article_id&order=asc&limit=5&p=2")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles).toHaveLength(5);
+
+          for (let i = 0; i < 5; i++) {
+            expect(articles[i].article_id).toBe(i + 6);
+          }
+        });
+    });
+
+    test("GET: 200 - should also respond with a total_count property, displaying the total number of articles returned", () => {
+      return request(app)
+        .get("/api/articles?limit=7")
+        .expect(200)
+        .then(({ body: { total_count } }) => expect(total_count).toBe(7));
+    });
+
+    test('GET: 400 - respond with message "Bad request" when specified limit is not a number', () => {
+      return request(app)
+        .get("/api/articles?limit=not-a-number")
+        .expect(400)
+        .then(({ body: { msg } }) => expect(msg).toBe("Bad request"));
+    });
+
+    test('GET: 400 - respond with message "Bad request" when specified page is not a number', () => {
+      return request(app)
+        .get("/api/articles?p=not-a-number")
+        .expect(400)
+        .then(({ body: { msg } }) => expect(msg).toBe("Bad request"));
+    });
+
+    test('GET: 400 - respond with message "Bad request" when specified limit is negative', () => {
+      return request(app)
+        .get("/api/articles?limit=-10")
+        .expect(400)
+        .then(({ body: { msg } }) => expect(msg).toBe("Bad request"));
+    });
+
+    test('GET: 400 - respond with message "Bad request" when specified page is negative', () => {
+      return request(app)
+        .get("/api/articles?p=-3")
+        .expect(400)
+        .then(({ body: { msg } }) => expect(msg).toBe("Bad request"));
+    });
+  });
   describe("POST", () => {
     test("POST: 201 - add a new article and respond with an object representing the posted article", () => {
       const input = {
