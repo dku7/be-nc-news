@@ -13,12 +13,11 @@ function psqlErrorHandler(error, request, response, next) {
     switch (error.code) {
       case "22P02": // wrong data type
       case "23502": // not-null violations
+      case "23505": // primary key violations
         return response.status(400).send({ msg: "Bad request" });
       case "23503": // constraint violations
         return response.status(404).send({ msg: "Not found" });
       default:
-        console.log(error);
-
         return response
           .status(500)
           .send({ msg: `Database error, code: ${error.code}` });

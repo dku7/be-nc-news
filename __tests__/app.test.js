@@ -31,18 +31,62 @@ describe("/api", () => {
 });
 
 describe("/api/topics", () => {
-  test("GET: 200 - respond with an array of topic objects wih the following properties: slug, description", () => {
-    return request(app)
-      .get("/api/topics")
-      .expect(200)
-      .then(({ body: { topics } }) => {
-        expect(topics).toHaveLength(3);
+  describe("GET", () => {
+    test("GET: 200 - respond with an array of topic objects wih the following properties: slug, description", () => {
+      return request(app)
+        .get("/api/topics")
+        .expect(200)
+        .then(({ body: { topics } }) => {
+          expect(topics).toHaveLength(3);
 
-        topics.forEach((topic) => {
-          expect(topic).toHaveProperty("slug");
-          expect(topic).toHaveProperty("description");
+          topics.forEach((topic) => {
+            expect(topic).toHaveProperty("slug");
+            expect(topic).toHaveProperty("description");
+          });
         });
-      });
+    });
+  });
+
+  describe("POST", () => {
+    test("POST: 201 - add a new topic and respond with an object representing the newly created topic", () => {
+      const input = {
+        slug: "music",
+        description: "Expression, emotion, rhythm, and harmony",
+      };
+
+      return request(app)
+        .post("/api/topics")
+        .send(input)
+        .expect(201)
+        .then(({ body: { newTopic } }) =>
+          expect(newTopic).toMatchObject(input)
+        );
+    });
+
+    test('POST: 400 - respond with message "Bad request" when passed in object does not have the required keys', () => {
+      const input = {
+        description: "Expression, emotion, rhythm, and harmony",
+      };
+
+      return request(app)
+        .post("/api/topics")
+        .send(input)
+        .expect(400)
+        .then(({ body: { msg } }) => expect(msg).toBe("Bad request"));
+    });
+
+    test('POST: 400 - respond with message "Bad request" when trying to add a topic that already exists', () => {
+      const input = {
+        slug: "paper",
+        description: "what books are made of",
+      };
+
+      return request(app)
+        .post("/api/topics")
+        .send(input)
+        .expect(400)
+        .then(({ body: { msg } }) => expect(msg).toBe("Bad request"));
+    });
   });
 });
 
@@ -534,77 +578,77 @@ describe("/api/articles/:article_id/comments", () => {
         .then(({ body: { msg } }) => expect(msg).toBe("Bad request"));
     });
   });
-});
 
-describe("POST", () => {
-  test("POST: 201 - add a new comment for the specified article_id and respond with an object representing the posted comment", () => {
-    const input = {
-      body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet sapien vitae nibh convallis mollis. Donec feugiat elit eu enim gravida imperdiet.",
-      author: "lurker",
-    };
+  describe("POST", () => {
+    test("POST: 201 - add a new comment for the specified article_id and respond with an object representing the posted comment", () => {
+      const input = {
+        body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet sapien vitae nibh convallis mollis. Donec feugiat elit eu enim gravida imperdiet.",
+        author: "lurker",
+      };
 
-    return request(app)
-      .post("/api/articles/1/comments")
-      .send(input)
-      .expect(201)
-      .then(({ body: { newComment } }) => {
-        expect(newComment).toMatchObject({
-          body: input.body,
-          article_id: 1,
-          author: input.author,
-          comment_id: expect.any(Number),
-          created_at: expect.any(String),
-          votes: 0,
+      return request(app)
+        .post("/api/articles/1/comments")
+        .send(input)
+        .expect(201)
+        .then(({ body: { newComment } }) => {
+          expect(newComment).toMatchObject({
+            body: input.body,
+            article_id: 1,
+            author: input.author,
+            comment_id: expect.any(Number),
+            created_at: expect.any(String),
+            votes: 0,
+          });
+        });
+    });
+
+    test('POST: 400 - respond with message "Bad request" when the given new comment does not specify body and/or author', () => {
+      const missingEverything = {};
+      const missingBody = { author: "lurker" };
+      const missingAuthor = {
+        body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet sapien vitae nibh convallis mollis. Donec feugiat elit eu enim gravida imperdiet.",
+      };
+
+      const testCases = [missingEverything, missingBody, missingAuthor];
+      const promises = testCases.map((testCase) => {
+        return request(app).post("/api/articles/1/comments").send(testCase);
+      });
+
+      return Promise.all(promises).then((responses) => {
+        responses.forEach((response) => {
+          expect(response.statusCode).toBe(400);
+          expect(response.body.msg).toBe("Bad request");
         });
       });
-  });
-
-  test('POST: 400 - respond with message "Bad request" when the given new comment does not specify body and/or author', () => {
-    const missingEverything = {};
-    const missingBody = { author: "lurker" };
-    const missingAuthor = {
-      body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet sapien vitae nibh convallis mollis. Donec feugiat elit eu enim gravida imperdiet.",
-    };
-
-    const testCases = [missingEverything, missingBody, missingAuthor];
-    const promises = testCases.map((testCase) => {
-      return request(app).post("/api/articles/1/comments").send(testCase);
     });
 
-    return Promise.all(promises).then((responses) => {
-      responses.forEach((response) => {
-        expect(response.statusCode).toBe(400);
-        expect(response.body.msg).toBe("Bad request");
-      });
+    test('POST: 404 - respond with message "Not found" when the specified author does not exist in the database', () => {
+      const input = {
+        body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet sapien vitae nibh convallis mollis. Donec feugiat elit eu enim gravida imperdiet.",
+        author: "idonotexist",
+      };
+
+      return request(app)
+        .post("/api/articles/1/comments")
+        .send(input)
+        .expect(404)
+        .then(({ body: { msg } }) => expect(msg).toBe("Not found"));
     });
-  });
 
-  test('POST: 404 - respond with message "Not found" when the specified author does not exist in the database', () => {
-    const input = {
-      body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet sapien vitae nibh convallis mollis. Donec feugiat elit eu enim gravida imperdiet.",
-      author: "idonotexist",
-    };
+    test('POST: 404 - respond with message "Not found" when the specified article_id does not exist in the database', () => {
+      const input = {
+        body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet sapien vitae nibh convallis mollis. Donec feugiat elit eu enim gravida imperdiet.",
+        author: "lurker",
+      };
 
-    return request(app)
-      .post("/api/articles/1/comments")
-      .send(input)
-      .expect(404)
-      .then(({ body: { msg } }) => expect(msg).toBe("Not found"));
-  });
-
-  test('POST: 404 - respond with message "Not found" when the specified article_id does not exist in the database', () => {
-    const input = {
-      body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet sapien vitae nibh convallis mollis. Donec feugiat elit eu enim gravida imperdiet.",
-      author: "lurker",
-    };
-
-    return request(app)
-      .post("/api/articles/9999/comments")
-      .send(input)
-      .expect(404)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Not found");
-      });
+      return request(app)
+        .post("/api/articles/9999/comments")
+        .send(input)
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found");
+        });
+    });
   });
 });
 
