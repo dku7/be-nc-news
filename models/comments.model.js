@@ -58,9 +58,27 @@ function deleteCommentByCommentId(comment_id) {
   return db.query("DELETE FROM comments WHERE comment_id = $1", [comment_id]);
 }
 
+function updateCommentByCommentId(inc_votes, comment_id) {
+  // check inc_votes is a number
+  if (typeof inc_votes != "number")
+    return Promise.reject({ status_code: 400, msg: "Bad request" });
+
+  return db
+    .query(
+      `
+    UPDATE comments
+    SET votes = votes + $1
+    WHERE comment_id = $2
+    RETURNING *`,
+      [inc_votes, comment_id]
+    )
+    .then((results) => results.rows[0]);
+}
+
 module.exports = {
   selectCommentsByArticleId,
   insertNewComment,
   selectCommentByCommentId,
   deleteCommentByCommentId,
+  updateCommentByCommentId,
 };

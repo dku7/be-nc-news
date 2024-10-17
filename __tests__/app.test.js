@@ -411,6 +411,68 @@ describe("/api/comments/:comment_id", () => {
         .then(({ body: { msg } }) => expect(msg).toBe("Bad request"));
     });
   });
+
+  describe("PATCH", () => {
+    test("PATCH: 200 - update the specified comment, increasing the votes and respond with an object representing the updated comment", () => {
+      const input = { inc_votes: 1 };
+      const comment_id = 3;
+
+      return request(app)
+        .patch(`/api/comments/${comment_id}`)
+        .send(input)
+        .expect(200)
+        .then(({ body: { updatedComment } }) => {
+          expect(updatedComment.comment_id).toBe(comment_id);
+          expect(updatedComment.votes).toBe(101);
+        });
+    });
+
+    test("PATCH: 200 - update the specified comment, decreasing the votes and respond with an object representing the updated comment", () => {
+      const input = { inc_votes: -3 };
+      const comment_id = 2;
+
+      return request(app)
+        .patch(`/api/comments/${comment_id}`)
+        .send(input)
+        .expect(200)
+        .then(({ body: { updatedComment } }) => {
+          expect(updatedComment.comment_id).toBe(comment_id);
+          expect(updatedComment.votes).toBe(11);
+        });
+    });
+
+    test('PATCH: 400 - respond with message "Bad request" when the specified comment_id is not the correct data type', () => {
+      const input = { inc_votes: 1 };
+
+      return request(app)
+        .patch("/api/comments/not-a-number")
+        .send(input)
+        .expect(400)
+        .then(({ body: { msg } }) => expect(msg).toBe("Bad request"));
+    });
+
+    test('PATCH: 400 - respond with message "Bad Request" when the wrong data type is provided for the patch', () => {
+      const input = { inc_votes: "this is a string not a number!" };
+
+      return request(app)
+        .patch("/api/comments/1")
+        .expect(400)
+        .send(input)
+        .then((result) => {
+          expect(result.body.msg).toBe("Bad request");
+        });
+    });
+
+    test("PATCH: 404 - respond with message 'Not found' when the specified comment_id is not found", () => {
+      const input = { inc_votes: 1 };
+
+      return request(app)
+        .patch("/api/comments/9999")
+        .send(input)
+        .expect(404)
+        .then(({ body: { msg } }) => expect(msg).toBe("Not found"));
+    });
+  });
 });
 
 describe("/api/users", () => {
