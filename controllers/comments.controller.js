@@ -9,11 +9,21 @@ const {
 
 function getCommentsByArticleId(request, response, next) {
   const { article_id } = request.params;
+  const { limit, p } = request.query;
 
-  // test whether the article exists first
-  return selectArticleById(article_id)
-    .then((article) => selectCommentsByArticleId(article.article_id))
-    .then((comments) => response.status(200).send({ comments: comments }))
+  // check limit and p are valid types and not negative
+  if ((limit && (isNaN(limit) || limit < 0)) || (p && (isNaN(p) || p < 0)))
+    return response.status(400).send({ status_code: 400, msg: "Bad request" });
+
+  const promises = [
+    selectCommentsByArticleId(article_id, limit, p),
+    selectArticleById(article_id),
+  ];
+
+  return Promise.all(promises)
+    .then((fulfilledPromises) =>
+      response.status(200).send({ comments: fulfilledPromises[0] })
+    )
     .catch(next);
 }
 

@@ -1,11 +1,9 @@
 const db = require("../db/connection");
 const format = require("pg-format");
 
-function selectCommentsByArticleId(article_id) {
-  return (
-    db
-      .query(
-        `
+function selectCommentsByArticleId(article_id, limit = 10, p) {
+  const queryValues = [article_id, limit];
+  let queryString = `
     SELECT
       comment_id,
       votes,
@@ -16,14 +14,14 @@ function selectCommentsByArticleId(article_id) {
     FROM comments
     WHERE article_id = $1
     ORDER BY created_at DESC
-    `,
-        [article_id]
-      )
-      // N.B. no need to test for empty rows as it is valid for no comments
-      // to be attached to an article. We can assume that article_id has been
-      // validated by controller before we query the database
-      .then((results) => results.rows)
-  );
+    LIMIT $2`;
+
+  if (p) {
+    queryValues.push(p);
+    queryString += ` OFFSET $${queryValues.length}`;
+  }
+
+  return db.query(queryString, queryValues).then((results) => results.rows);
 }
 
 function insertNewComment(newComment, article_id) {
