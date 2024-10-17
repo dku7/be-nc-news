@@ -1,4 +1,5 @@
 const db = require("../db/connection");
+const format = require("pg-format");
 
 function selectArticleById(article_id) {
   let queryString = `
@@ -97,4 +98,30 @@ function updateArticleById(inc_votes, article_id) {
     )
     .then((results) => results.rows[0]);
 }
-module.exports = { selectArticleById, selectArticles, updateArticleById };
+
+function insertNewArticle(newArticle) {
+  const insertValues = [];
+
+  for (key in newArticle) insertValues.push(newArticle[key]);
+
+  return db
+    .query(
+      format(
+        `INSERT INTO articles (
+          author,
+          title,
+          body,
+          topic,
+          article_img_url
+      ) VALUES %L RETURNING *`,
+        [insertValues]
+      )
+    )
+    .then((results) => results.rows[0].article_id);
+}
+module.exports = {
+  selectArticleById,
+  selectArticles,
+  updateArticleById,
+  insertNewArticle,
+};

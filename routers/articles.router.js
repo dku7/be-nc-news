@@ -3,6 +3,7 @@ const {
   getArticleById,
   getArticles,
   patchArticleById,
+  postNewArticle,
 } = require("../controllers/articles.controller");
 
 const {
@@ -11,7 +12,7 @@ const {
 } = require("../controllers/comments.controller");
 
 // handle requests for /api/articles
-articlesRouter.get("/", getArticles);
+articlesRouter.route("/").get(getArticles).post(postNewArticle);
 
 // handle requests for /api/articles/:article_id
 articlesRouter
