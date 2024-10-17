@@ -2,6 +2,7 @@ const {
   selectArticleById,
   selectArticles,
   updateArticleById,
+  insertNewArticle,
 } = require("../models/articles.model");
 
 function getArticleById(request, response, next) {
@@ -42,4 +43,29 @@ function patchArticleById(request, response, next) {
     )
     .catch(next);
 }
-module.exports = { getArticleById, getArticles, patchArticleById };
+
+function postNewArticle(request, response, next) {
+  const minRequiredKeys = ["author", "title", "body", "topic"];
+  const requestedNewArticle = request.body;
+  const newArticleKeys = Object.keys(requestedNewArticle);
+
+  // check the requested new article has the required keys
+  if (
+    newArticleKeys.length < minRequiredKeys.length ||
+    !minRequiredKeys.every((key) => newArticleKeys.includes(key))
+  ) {
+    return response.status(400).send({ status_code: 400, msg: "Bad request" });
+  }
+
+  return insertNewArticle(requestedNewArticle)
+    .then((article_id) => selectArticleById(article_id))
+    .then((newArticle) => response.status(201).send({ newArticle }))
+    .catch(next);
+}
+
+module.exports = {
+  getArticleById,
+  getArticles,
+  patchArticleById,
+  postNewArticle,
+};

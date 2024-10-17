@@ -297,6 +297,82 @@ describe("/api/articles", () => {
         });
     });
   });
+
+  describe("POST", () => {
+    test("POST: 201 - add a new article and respond with an object representing the posted article", () => {
+      const input = {
+        author: "lurker",
+        title: "Lorem ipsum",
+        body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet sapien vitae nibh convallis mollis. Donec feugiat elit eu enim gravida imperdiet.",
+        topic: "cats",
+        article_img_url: "https://picsum.photos/200",
+      };
+
+      return request(app)
+        .post("/api/articles")
+        .send(input)
+        .expect(201)
+        .then(({ body: { newArticle } }) => {
+          expect(newArticle).toMatchObject({
+            article_id: 14,
+            title: "Lorem ipsum",
+            topic: "cats",
+            author: "lurker",
+            body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet sapien vitae nibh convallis mollis. Donec feugiat elit eu enim gravida imperdiet.",
+            created_at: expect.any(String),
+            votes: 0,
+            article_img_url: "https://picsum.photos/200",
+            comment_count: 0,
+          });
+        });
+    });
+
+    test('POST: 400 - respond with message "Bad request" when passed in object does not have the required keys', () => {
+      const input = {
+        author: "lurker",
+        title: "Lorem ipsum",
+        topic: "cats",
+      };
+
+      return request(app)
+        .post("/api/articles")
+        .send(input)
+        .expect(400)
+        .then(({ body: { msg } }) => expect(msg).toBe("Bad request"));
+    });
+
+    test('POST: 404 - respond with message "Not found" when the specified username does not exist', () => {
+      const input = {
+        author: "i-do-not-exist",
+        title: "Lorem ipsum",
+        body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet sapien vitae nibh convallis mollis. Donec feugiat elit eu enim gravida imperdiet.",
+        topic: "cats",
+        article_img_url: "https://picsum.photos/200",
+      };
+
+      return request(app)
+        .post("/api/articles")
+        .send(input)
+        .expect(404)
+        .then(({ body: { msg } }) => expect(msg).toBe("Not found"));
+    });
+
+    test('POST: 404 - respond with message "Not found" when the specified topic does not exist', () => {
+      const input = {
+        author: "lurker",
+        title: "Lorem ipsum",
+        body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet sapien vitae nibh convallis mollis. Donec feugiat elit eu enim gravida imperdiet.",
+        topic: "a-new-topic",
+        article_img_url: "https://picsum.photos/200",
+      };
+
+      return request(app)
+        .post("/api/articles")
+        .send(input)
+        .expect(404)
+        .then(({ body: { msg } }) => expect(msg).toBe("Not found"));
+    });
+  });
 });
 
 describe("/api/articles/:article_id/comments", () => {
