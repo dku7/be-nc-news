@@ -4,6 +4,7 @@ const {
   insertNewComment,
   selectCommentByCommentId,
   deleteCommentByCommentId,
+  updateCommentByCommentId,
 } = require("../models/comments.model");
 
 function getCommentsByArticleId(request, response, next) {
@@ -39,8 +40,32 @@ function removeCommentByCommentId(request, response, next) {
     .catch(next);
 }
 
+function patchCommentByCommentId(request, response, next) {
+  const { comment_id } = request.params;
+
+  // check that the request body includes the expected key
+  if (!Object.keys(request.body).includes("inc_votes")) {
+    return response.status(400).send({ status_code: 400, msg: "Bad request" });
+  }
+
+  const { inc_votes } = request.body;
+
+  // check that the comment exists using Promise.all
+  const promises = [
+    updateCommentByCommentId(inc_votes, comment_id),
+    selectCommentByCommentId(comment_id),
+  ];
+
+  return Promise.all(promises)
+    .then((fulfilledPromises) =>
+      response.status(200).send({ updatedComment: fulfilledPromises[0] })
+    )
+    .catch(next);
+}
+
 module.exports = {
   getCommentsByArticleId,
   postNewComment,
   removeCommentByCommentId,
+  patchCommentByCommentId,
 };
