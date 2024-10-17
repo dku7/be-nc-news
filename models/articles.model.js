@@ -74,13 +74,7 @@ function selectArticles(sort_by = "created_at", order = "desc", topic) {
 
   queryString += `
     GROUP BY
-      articles.author,
-      articles.title,
-      articles.article_id,
-      articles.topic,
-      articles.created_at,
-      articles.votes,
-      articles.article_img_url
+      articles.article_id
     ORDER BY 
     ${sort_by} ${order}`;
 
