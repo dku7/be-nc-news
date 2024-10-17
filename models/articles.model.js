@@ -17,14 +17,7 @@ function selectArticleById(article_id) {
     LEFT JOIN comments ON comments.article_id = articles.article_id
     WHERE articles.article_id = $1
     GROUP BY
-      articles.article_id,
-      articles.title,
-      articles.topic,
-      articles.author,
-      articles.body,
-      articles.created_at,
-      articles.votes,
-      articles.article_img_url`;
+      articles.article_id`;
 
   return db.query(queryString, [article_id]).then((results) => {
     if (!results.rowCount)
@@ -34,7 +27,13 @@ function selectArticleById(article_id) {
   });
 }
 
-function selectArticles(sort_by = "created_at", order = "desc", topic) {
+function selectArticles(
+  sort_by = "created_at",
+  order = "desc",
+  topic,
+  limit = 10,
+  p
+) {
   const allowedSortBy = [
     "author",
     "title",
@@ -48,11 +47,14 @@ function selectArticles(sort_by = "created_at", order = "desc", topic) {
 
   const allowedOrders = ["asc", "desc"];
 
+  let queryString = "";
+  const queryValues = [];
+
   if (!allowedSortBy.includes(sort_by) || !allowedOrders.includes(order)) {
     return Promise.reject({ status_code: 400, msg: "Bad request" });
   }
 
-  let queryString = `
+  queryString = `
     SELECT
       articles.author,
       articles.title,
@@ -63,21 +65,24 @@ function selectArticles(sort_by = "created_at", order = "desc", topic) {
       articles.article_img_url,
       CAST(COUNT(comments.comment_id) AS INT) AS comment_count -- force to integer, otherwise returns as string in object
     FROM articles
-    LEFT JOIN comments ON comments.article_id = articles.article_id
-   `;
-
-  const queryValues = [];
+    LEFT JOIN comments ON comments.article_id = articles.article_id`;
 
   if (topic) {
     queryString += " WHERE topic = $1 ";
     queryValues.push(topic);
   }
 
+  queryValues.push(limit);
+
   queryString += `
-    GROUP BY
-      articles.article_id
-    ORDER BY 
-    ${sort_by} ${order}`;
+    GROUP BY articles.article_id
+    ORDER BY ${sort_by} ${order}
+    LIMIT $${queryValues.length}`;
+
+  if (p) {
+    queryValues.push(limit * (p - 1));
+    queryString += ` OFFSET $${queryValues.length}`;
+  }
 
   return db.query(queryString, queryValues).then((results) => results.rows);
 }

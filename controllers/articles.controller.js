@@ -14,10 +14,19 @@ function getArticleById(request, response, next) {
 }
 
 function getArticles(request, response, next) {
-  const { sort_by, order, topic } = request.query;
+  const { sort_by, order, topic, limit, p } = request.query;
 
-  return selectArticles(sort_by, order, topic)
-    .then((articles) => response.status(200).send({ articles }))
+  // check limit and p are valid types and not negative
+  if ((limit && (isNaN(limit) || limit < 0)) || (p && (isNaN(p) || p < 0)))
+    return response.status(400).send({ status_code: 400, msg: "Bad request" });
+
+  return selectArticles(sort_by, order, topic, limit, p)
+    .then((articles) =>
+      response.status(200).send({
+        total_count: articles.length,
+        articles: articles,
+      })
+    )
     .catch(next);
 }
 
