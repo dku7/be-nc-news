@@ -48,7 +48,28 @@ describe("/api/topics", () => {
 
 describe("/api/articles/:article_id", () => {
   describe("GET", () => {
-    test("GET: 200 - respond with an article object for the specified article_id (when article has comments)", () => {
+    test("GET: 200 - respond with an article object for the specified article_id", () => {
+      const article_id = 5;
+
+      return request(app)
+        .get(`/api/articles/${article_id}`)
+        .expect(200)
+        .then(({ body: { article } }) => {
+          expect(article).toMatchObject({
+            article_id: article_id,
+            title: "UNCOVERED: catspiracy to bring down democracy",
+            topic: "cats",
+            author: "rogersop",
+            body: "Bastet walks amongst us, and the cats are taking arms!",
+            created_at: "2020-08-03T13:14:00.000Z",
+            votes: 0,
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          });
+        });
+    });
+
+    test("GET: 200 - respond with an article object for the specified article_id with additional comment_count key (when comments exist)", () => {
       const article_id = 5;
 
       return request(app)
@@ -70,7 +91,7 @@ describe("/api/articles/:article_id", () => {
         });
     });
 
-    test("GET: 200 - respond with an article object for the specified article_id (when article has no comments)", () => {
+    test("GET: 200 - respond with an article object for the specified article_id with additional comment_count key (when no comments exist)", () => {
       const article_id = 2;
 
       return request(app)
