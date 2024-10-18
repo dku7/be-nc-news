@@ -88,10 +88,6 @@ function selectArticles(
 }
 
 function updateArticleById(inc_votes, article_id) {
-  // check inc_votes in a number
-  if (typeof inc_votes != "number")
-    return Promise.reject({ status_code: 400, msg: "Bad request" });
-
   return db
     .query(
       `

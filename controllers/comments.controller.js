@@ -52,13 +52,11 @@ function removeCommentByCommentId(request, response, next) {
 
 function patchCommentByCommentId(request, response, next) {
   const { comment_id } = request.params;
+  const { inc_votes } = request.body;
 
-  // check that the request body includes the expected key
-  if (!Object.keys(request.body).includes("inc_votes")) {
+  if (isNaN(inc_votes)) {
     return response.status(400).send({ status_code: 400, msg: "Bad request" });
   }
-
-  const { inc_votes } = request.body;
 
   // check that the comment exists using Promise.all
   const promises = [
