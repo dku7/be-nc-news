@@ -57,10 +57,6 @@ function deleteCommentByCommentId(comment_id) {
 }
 
 function updateCommentByCommentId(inc_votes, comment_id) {
-  // check inc_votes is a number
-  if (typeof inc_votes != "number")
-    return Promise.reject({ status_code: 400, msg: "Bad request" });
-
   return db
     .query(
       `
