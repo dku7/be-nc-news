@@ -124,9 +124,15 @@ function insertNewArticle(newArticle) {
     )
     .then((results) => results.rows[0].article_id);
 }
+
+function deleteArticleByArticleId(article_id) {
+  return db.query("DELETE FROM articles WHERE article_id = $1", [article_id]);
+}
+
 module.exports = {
   selectArticleById,
   selectArticles,
   updateArticleById,
   insertNewArticle,
+  deleteArticleByArticleId,
 };

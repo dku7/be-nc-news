@@ -3,6 +3,7 @@ const {
   selectArticles,
   updateArticleById,
   insertNewArticle,
+  deleteArticleByArticleId,
 } = require("../models/articles.model");
 
 function getArticleById(request, response, next) {
@@ -72,9 +73,21 @@ function postNewArticle(request, response, next) {
     .catch(next);
 }
 
+function removeArticleByArticleId(request, response, next) {
+  const { article_id } = request.params;
+
+  if (isNaN(article_id))
+    response.status(400).send({ status_code: 400, msg: "Bad request" });
+
+  return deleteArticleByArticleId(article_id)
+    .then(() => response.status(204).send())
+    .catch(next);
+}
+
 module.exports = {
   getArticleById,
   getArticles,
   patchArticleById,
   postNewArticle,
+  removeArticleByArticleId,
 };
