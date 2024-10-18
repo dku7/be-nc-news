@@ -94,6 +94,12 @@
     }
   },
 
+  "DELETE /api/articles/:article_id": {
+    "description": "deletes the specified article",
+    "queries": [],
+    "exampleResponse": "No response content is returned on successful delete"
+  },
+
   "DELETE /api/comments/:comment_id": {
     "description": "deletes the specified comment",
     "queries": [],
