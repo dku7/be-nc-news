@@ -242,6 +242,19 @@ describe("/api/articles/:article_id", () => {
         .then(({ body: { msg } }) => expect(msg).toBe("Not found"));
     });
   });
+
+  describe("DELETE", () => {
+    test("DELETE: 204 - respond with status code of 204 with no content on successfully deleting an article", () => {
+      return request(app).delete("/api/articles/1").expect(204);
+    });
+
+    test('DELETE: 400 - respond with message "Bad request" when the specified article_id is not the correct data type', () => {
+      return request(app)
+        .delete("/api/articles/not-a-number")
+        .expect(400)
+        .then(({ body: { msg } }) => expect(msg).toBe("Bad request"));
+    });
+  });
 });
 
 describe("/api/articles", () => {
