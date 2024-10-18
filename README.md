@@ -9,7 +9,7 @@
 - [Minimum Versions](#minimum-versions)
 - [Usage](#usage)
 
-This service is currently hosted at https://nc-news-lpqp.onrender.com
+This service is currently hosted at https://nc-news-voyg.onrender.com
 
 ## About
 
