@@ -17,7 +17,7 @@ function selectCommentsByArticleId(article_id, limit = 10, p) {
     LIMIT $2`;
 
   if (p) {
-    queryValues.push(p);
+    queryValues.push(limit * (p - 1));
     queryString += ` OFFSET $${queryValues.length}`;
   }
 
