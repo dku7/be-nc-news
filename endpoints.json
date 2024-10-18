@@ -109,6 +109,7 @@
   "PATCH /api/articles/:article_id": {
     "description": "updates the number of votes for the given article_id",
     "queries": [],
+    "exampleRequestBody": { "inc_votes": 1 },
     "exampleResponse": {
       "updatedArticle": {
         "article_id": 3,
@@ -126,6 +127,7 @@
   "PATCH /api/comments/:comment_id": {
     "description": "updates the number of votes for the given comment_id",
     "queries": [],
+    "exampleRequestBody": { "inc_votes": 1 },
     "exampleResponse": {
       "comments": [
         {
@@ -143,6 +145,13 @@
   "POST /api/articles": {
     "description": "add a new article, returns with the newly posted article",
     "queries": [],
+    "exampleRequestBody": {
+      "author": "rogersop",
+      "title": "UNCOVERED: catspiracy to bring down democracy",
+      "body": "Bastet walks amongst us, and the cats are taking arms!",
+      "topic": "cats",
+      "article_img_url": "<optional>"
+    },
     "exampleResponse": {
       "newArticle": [
         {
@@ -162,6 +171,10 @@
   "POST /api/articles/:article_id/comments": {
     "description": "add a new comment to an article, returns with the newly posted comment",
     "queries": [],
+    "exampleRequestBody": {
+      "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet sapien vitae nibh convallis mollis. Donec feugiat elit eu enim gravida imperdiet.",
+      "author": "lurker"
+    },
     "exampleResponse": {
       "newComment": {
         "comment_id": 19,
@@ -177,6 +190,7 @@
   "POST /api/topics": {
     "description": "add a new topic, returns with the newly created topic",
     "queries": [],
+    "exampleRequestBody": { "slug": "football", "description": "Footie!" },
     "exampleResponse": {
       "newTopic": [{ "slug": "football", "description": "Footie!" }]
     }
