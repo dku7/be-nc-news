@@ -187,28 +187,16 @@ describe("/api/articles/:article_id", () => {
     });
 
     test("PATCH: 200 - update the specified article, decreasing the votes and respond with an object representing the updated article", () => {
-      const input = { inc_votes: -1 };
+      const input = { inc_votes: -2 };
+      const article_id = 2;
 
       return request(app)
-        .patch("/api/articles/1")
+        .patch(`/api/articles/${article_id}`)
         .send(input)
         .expect(200)
         .then(({ body: { updatedArticle } }) => {
-          expect(updatedArticle.article_id).toBe(1);
-          expect(updatedArticle.votes).toBe(99);
-        });
-    });
-
-    test("PATCH: 200 - if the number of inc_votes is greater than the current votes the returned votes should be 0, not negative", () => {
-      const input = { inc_votes: -100 };
-
-      return request(app)
-        .patch("/api/articles/4")
-        .send(input)
-        .expect(200)
-        .then(({ body: { updatedArticle } }) => {
-          expect(updatedArticle.article_id).toBe(4);
-          expect(updatedArticle.votes).toBe(0);
+          expect(updatedArticle.article_id).toBe(article_id);
+          expect(updatedArticle.votes).toBe(-2);
         });
     });
 

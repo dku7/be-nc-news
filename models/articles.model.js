@@ -96,7 +96,7 @@ function updateArticleById(inc_votes, article_id) {
     .query(
       `
     UPDATE articles
-    SET votes = GREATEST(votes + $1, 0) -- set to 0 if it goes negative
+    SET votes = (votes + $1)
     WHERE article_id = $2
     RETURNING *`,
       [inc_votes, article_id]
