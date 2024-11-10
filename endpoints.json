@@ -129,7 +129,7 @@
     "queries": [],
     "exampleRequestBody": { "inc_votes": 1 },
     "exampleResponse": {
-      "comments": [
+      "updatedComment": [
         {
           "comment_id": 5,
           "votes": 1,
